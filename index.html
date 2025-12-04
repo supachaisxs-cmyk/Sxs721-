@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Showtime Selector — Day 6</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background: #222;
+    color: #fff;
+    padding: 18px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.stage-list {
+    padding: 20px;
+}
+
+.stage-btn {
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-size: 18px;
+    text-align: left;
+}
+
+.artist-page, .result-page {
+    display: none;
+    padding: 20px;
+}
+
+.artist-card {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+}
+
+.btn-done {
+    margin-top: 20px;
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    background: #222;
+    color: #fff;
+    border-radius: 8px;
+}
+
+.back-btn {
+    background: #999;
+    color: #fff;
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">เลือกเวที — DAY 6</div>
+
+<!-- หน้าเลือกเวที -->
+<div id="stagePage" class="stage-list">
+    <button class="stage-btn" onclick="openStage('ferris')">Ferris Wheel Stage</button>
+    <button class="stage-btn" onclick="openStage('block')">Block Stage</button>
+    <button class="stage-btn" onclick="openStage('reo')">Reo Stage</button>
+    <button class="stage-btn" onclick="openStage('harn')">Harn Stage</button>
+    <button class="stage-btn" onclick="openStage('jaii')">District's Jaii Stage</button>
+    <button class="stage-btn" onclick="openStage('lang')">Lang Stage</button>
+</div>
+
+<!-- ที่วางข้อมูลศิลปิน -->
+<div id="stageContent"></div>
+
+<!-- ตารางส่วนตัว -->
+<div id="resultPage" class="result-page">
+    <h2>ตารางส่วนตัวของคุณ</h2>
+    <div id="resultList"></div>
+    <button class="btn-done" onclick="location.reload()">เริ่มใหม่</button>
+</div>
+
+<script>
+let selectedActs = [];
+
+// ข้อมูลศิลปินตามเวที วันที่ 6
+const stageData = {
+ferris: `
+<h2>Ferris Wheel Stage</h2>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'SLOT MACHINE','16:45-17:45','Ferris Wheel',16.45)"> SLOT MACHINE (16:45-17:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'LOMOSONIC','18:00-19:00','Ferris Wheel',18.00)"> LOMOSONIC (18:00-19:00)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Bank Preeti','19:45-20:15','Ferris Wheel',19.45)"> Bank Preeti (19:45-20:15)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Potato','21:45-22:45','Ferris Wheel',21.45)"> POTATO (21:45-22:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Bodyslam','23:00-00:00','Ferris Wheel',23.00)"> Bodyslam (23:00-00:00)</label></div>
+<button class="btn-done" onclick="goResult()">เพิ่มเข้าตาราง</button>
+<button class="back-btn" onclick="backHome()">กลับ</button>
+`,
+
+block: `
+<h2>Block Stage</h2>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Samui','16:15-17:00','Block',16.15)"> Samui (16:15-17:00)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Wolf Howl Harmony','17:15-17:45','Block',17.15)"> Wolf Howl Harmony (17:15-17:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Diva La Vie','18:00-18:30','Block',18.00)"> Diva La Vie (18:00-18:30)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Jaylerr','18:45-19:45','Block',18.45)"> Jaylerr (18:45-19:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Fourth','20:15-20:45','Block',20.15)"> Fourth (20:15-20:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Proxie','21:00-21:45','Block',21.00)"> Proxie (21:00-21:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Perses','22:00-22:45','Block',22.00)"> Perses (22:00-22:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Lykn','23:00-23:30','Block',23.00)"> Lykn (23:00-23:30)</label></div>
+<button class="btn-done" onclick="goResult()">เพิ่มเข้าตาราง</button>
+<button class="back-btn" onclick="backHome()">กลับ</button>
+`,
+
+reo: `
+<h2>Reo Stage</h2>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Tilly Birds','16:10-16:55','Reo',16.10)"> Tilly Birds (16:10-16:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Pun','17:10-17:55','Reo',17.10)"> Pun (17:10-17:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'CHAMELEON','18:10-18:55','Reo',18.10)"> CHAMELEON (18:10-18:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'POLYCAT','19:10-19:55','Reo',19.10)"> POLYCAT (19:10-19:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'SCRUBB','20:10-20:55','Reo',20.10)"> SCRUBB (20:10-20:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Tattoo Colour','21:10-21:55','Reo',21.10)"> Tattoo Colour (21:10-21:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Timethai','22:10-22:55','Reo',22.10)"> Timethai (22:10-22:55)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Urboy TJ','23:10-23:55','Reo',23.10)"> Urboy TJ (23:10-23:55)</label></div>
+<button class="btn-done" onclick="goResult()">เพิ่มเข้าตาราง</button>
+<button class="back-btn" onclick="backHome()">กลับ</button>
+`,
+
+harn: `
+<h2>Harn Stage</h2>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Serious Bacon','13:00-13:45','Harn',13.00)"> Serious Bacon (13:00-13:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Trance Effect','14:15-15:00','Harn',14.15)"> Trance Effect (14:15-15:00)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Gunchalie','15:30-16:15','Harn',15.30)"> Guncharlie (15:30-16:15)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'James Alyn','18:00-18:45','Harn',18.00)"> James Alyn (18:00-18:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Whal & Dolph','19:15-20:00','Harn',19.15)"> Whal & Dolph (19:15-20:00)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'MIRRR','20:30-21:15','Harn',20.30)"> MIRRR (20:30-21:15)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Safeplanet','21:45-22:30','Harn',21.45)"> Safeplanet (21:45-22:30)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Paradox','23:00-23:45','Harn',23.00)"> Paradox (23:00-23:45)</label></div>
+<button class="btn-done" onclick="goResult()">เพิ่มเข้าตาราง</button>
+<button class="back-btn" onclick="backHome()">กลับ</button>
+`,
+
+jaii: `
+<h2>District’s JAII Stage</h2>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Taitosmith','13:00-13:45','Jaii',13.00)"> Taitosmith (13:00-13:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Gandharva','14:15-15:15','Jaii',14.15)"> Gandharva (14:15-15:15)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'วิจิตรชน','15:45-16:30','Jaii',15.45)"> วิจิตรชน (15:45-16:30)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Réjizz','17:00-17:45','Jaii',17.00)"> RÉJIZZ (17:00-17:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'H3F','18:15-19:00','Jaii',18.15)"> H3F (18:15-19:00)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Desktop Error','19:30-20:15','Jaii',19.30)"> Desktop Error (19:30-20:15)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Hugo','20:45-21:30','Jaii',20.45)"> Hugo (20:45-21:30)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'Srirajah Rockers','22:00-22:45','Jaii',22.00)"> Srirajah Rockers (22:00-22:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'สามานย์','23:15-00:00','Jaii',23.15)"> สามานย์ (23:15-00:00)</label></div>
+<button class="btn-done" onclick="goResult()">เพิ่มเข้าตาราง</button>
+<button class="back-btn" onclick="backHome()">กลับ</button>
+`,
+
+lang: `
+<h2>Lang Stage</h2>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'YES INDEED','15:00-15:30','Lang',15.00)"> YES INDEED (15:00-15:30)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'ROOFTOP','16:00-16:45','Lang',16.00)"> ROOFTOP (16:00-16:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'DE FLAMINGO','17:15-18:00','Lang',17.15)"> DE FLAMINGO (17:15-18:00)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'มานพ','18:30-19:15','Lang',18.30)"> มานพ (18:30-19:15)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'แพร ชนา','19:45-20:30','Lang',19.45)"> แพร ชนา (19:45-20:30)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'เล็ก','21:00-21:45','Lang',21.00)"> เล็ก (21:00-21:45)</label></div>
+<div class="artist-card"><label><input type="checkbox" onclick="pick(this,'มนัสสวี','22:15-23:00','Lang',22.15)"> มนัสสวี (22:15-23:00)</label></div>
+<button class="btn-done" onclick="goResult()">เพิ่มเข้าตาราง</button>
+<button class="back-btn" onclick="backHome()">กลับ</button>
+`
+};
+
+// เปิดหน้าเวทีที่เลือก
+function openStage(stage) {
+    document.getElementById("stagePage").style.display = "none";
+    document.getElementById("stageContent").style.display = "block";
+    document.getElementById("stageContent").innerHTML = stageData[stage];
+}
+
+// เลือกศิลปิน
+function pick(checkbox, artist, time, stage, startTime) {
+    if (checkbox.checked) {
+        selectedActs.push({ artist, time, stage, timeStart: startTime });
+    } else {
+        selectedActs = selectedActs.filter(a => !(a.artist === artist && a.stage === stage));
+    }
+}
+
+// กลับหน้าแรก
+function backHome() {
+    document.getElementById("stageContent").style.display = "none";
+    document.getElementById("stagePage").style.display = "block";
+}
+
+// แสดงตารางส่วนตัว
+function goResult() {
+    document.getElementById("stageContent").style.display = "none";
+    document.getElementById("resultPage").style.display = "block";
+
+    let html = "";
+    selectedActs.sort((a, b) => a.timeStart - b.timeStart);
+
+    selectedActs.forEach(a => {
+        html += `
+            <div class="artist-card">
+                <b>${a.artist}</b><br>
+                ${a.time} — <i>${a.stage}</i>
+            </div>
+        `;
+    });
+
+    document.getElementById("resultList").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
